@@ -64,6 +64,7 @@ This script will, for each mercurial repo in the `REPO_MAPPING_FILE`:
 
 Example
 =======
+
 An example is included in this repository, of a mercurial repository
 `example/example.hg`, which looks like this in `tortoisehg`:
 ![hg_screenshot.png](example/hg_screenshot.png)
@@ -74,6 +75,14 @@ the following contents:
 {
     "example.hg": "example.git"
 }
+```
+
+Note: Due to some line-ending weirdness I am not familiar with, when cloing this
+repository on Windows, the example mercurial repository appears as having uncommitted
+changes. Revert them before continuing, as mercurial with otherwise refuse to operate on
+this repository:
+```bash
+hg update -C -R example/example.hg
 ```
 
 First we create an author mapping file:
