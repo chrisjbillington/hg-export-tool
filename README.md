@@ -15,7 +15,8 @@ Requirements
 ============
 
 To use this tool, you'll need Python 2.7 with the mercurial module installed, and you'll
-need `hg-fast-export`. 
+need `hg-fast-export`. You will also need the `git` and `hg` commands to be in your
+path, such that they function from the command line.
 
 To install mercurial, run: `pip install mercurial`, or use your system's package manager
 to install the mercurial libraries for Python 2.
@@ -24,8 +25,6 @@ Then clone this repository, `cd` to it and clone `hg-fast-export` into it:
 ```bash
 git clone https://github.com/frej/fast-export
 ```
-You will also need the `git` and `hg` commands to be in your path, such that they
-function from the command line
 
 Running
 =======
