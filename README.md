@@ -22,6 +22,7 @@ A. Yes, but I'm in a hurry to get this stuff working to port my own repositories
    it's easier to wrap `hg-fast-export` than to understand it well enough to modify it.
 
 Q. Why Python 2?
+
 A. Because `hg-fast-export` is Python 2 only at present.
 
 Q. This is all pretty annoying, isn't it?
