@@ -29,8 +29,11 @@ for repo in repos:
 
 authors_map = os.path.join(basedir, 'authors.map')
 if os.path.exists(authors_map):
-    print("authors.map already exists. If you are sure you want to replace it, please "
-          + "delete it and run this script again")
+    print(
+        "%s already exists. " % authors_map
+        + "If you are sure you want to replace it, please "
+        + "delete it and run this script again"
+    )
     sys.exit(1)
 
 

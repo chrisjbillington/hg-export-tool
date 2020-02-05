@@ -11,7 +11,26 @@ the conversion to git
 
 This script uses Python 2 because `hg-fast-export` is Python 2 only at present.
 
-run it as `python2 exporter.py REPO_MAPPING_FILE [args ...]`
+Requirements
+============
+
+To use this tool, you'll need Python 2.7 with the mercurial module installed, and you'll
+need `hg-fast-export`. 
+
+To install mercurial, run: `pip install mercurial`, or use your system's package manager
+to install the mercurial libraries for Python 2.
+
+Then clone this repository, `cd` to it and clone `hg-fast-export` into it:
+```bash
+git clone https://github.com/frej/fast-export
+```
+You will also need the `git` and `hg` commands to be in your path, such that they
+function from the command line
+
+Running
+=======
+
+run this script as `python2 exporter.py REPO_MAPPING_FILE [args ...]`
 
 where `REPO MAPPING FILE` is the path to a file containing JSON mapping filepaths of
 mercurial repositories to a desired filepaths of the resulting git repositories. The git
