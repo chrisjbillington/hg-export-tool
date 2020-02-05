@@ -138,6 +138,9 @@ def main():
 
     fast_export_args = sys.argv[1:]
 
+    REPO_MAPPING_FILE = os.path.abspath(REPO_MAPPING_FILE)
+    basedir = os.path.dirname(REPO_MAPPING_FILE)
+
     with open(REPO_MAPPING_FILE) as f:
         repo_mapping = json.load(f)
 
@@ -148,7 +151,11 @@ def main():
 
     for hg_repo, git_repo in repo_mapping.items():
         process_repo(
-            os.path.abspath(hg_repo), os.path.abspath(git_repo), fast_export_args
+            # Interpret the paths as relative to basedir - will do nothing if they were
+            # already absolute paths:
+            os.path.join(basedir, hg_repo),
+            os.path.join(basedir, git_repo),
+            fast_export_args,
         )
 
 if __name__ == '__main__':

@@ -15,16 +15,18 @@ run it as `python2 exporter.py REPO_MAPPING_FILE [args ...]`
 
 where `REPO MAPPING FILE` is the path to a file containing JSON mapping filepaths of
 mercurial repositories to a desired filepaths of the resulting git repositories. The git
-repositories must not already exist.
+repositories must not already exist. If the filepaths in this file are relative paths,
+they will be interpreted relative to the directory containing the repo mapping file.
 
 All remaining arguments will be passed to invocations of `hg-fast-export.sh`. One
 argument you will probably want to use is `-A` to pass an author map file. To get a list
 of authors present in the mercurial commits, run the `list-authors.py` script as
 `python2 list-authors.py REPO_MAPPING_FILE`. This will output a file `authors.map` in
-the correct format for passing to `hg-fast-export.sh` with the `-A` argument. You can
-modify this file to fill in the desired git commit names and emails by editing on the
-right side of the equals sign on each line, otherwise `<devnull@localhost>` will be used
-for all unknown email addresses (the default behaviour of `hg-fast-export`)
+the same directory as the repo mapping file, in the correct format for passing to
+`hg-fast-export.sh` with the `-A` argument. You can modify this file to fill in the
+desired git commit names and emails by editing on the right side of the equals sign on
+each line, otherwise `<devnull@localhost>` will be used for all unknown email addresses
+(the default behaviour of `hg-fast-export`)
 
 On Windows, you will need to run the script from within a 'git bash' shell or whatever
 git comes with on Windows, so that bash exists, which `hg-fast-export` uses.
@@ -34,26 +36,60 @@ This script will, for each mercurial repo in the `REPO_MAPPING_FILE`:
 1. Make a temporary copy of the mercurial repository
 2. When a branch has more than one head, make empty branch commits such that each extra
    head has a child commit with a unique branch name
-1. ensure the destination git repository directory exists
-2. run `git init` in in the destination repository
-2. `cd` to the destination git repository directory
-3. Run `hg-fast-export.sh -r <hg_repo_path> [args ...]`, passing all  arguments that
+3. ensure the destination git repository directory exists
+4. run `git init` in in the destination repository
+5. `cd` to the destination git repository directory
+6. Run `hg-fast-export.sh -r <hg_repo_path> [args ...]`, passing all  arguments that
    were passed  to 
-4. run `git reset --hard master` to put the git repository into a clean state.
+7. run `git reset --hard master` to put the git repository into a clean state.
+
+
+Example
+=======
+An example is included in this repository, of a mercurial repository
+`example/example.hg`, which looks like this in `tortoisehg`:
+![hg_screenshot.png](example/hg_screenshot.png)
+
+There is a repo mapping file `example/repo_mapping.json` with
+the following contents:
+```json
+{
+    "example.hg": "example.git"
+}
+```
+
+First we create an author mapping file:
+```bash
+python2 list-authors.py example/repo_mapping.json
+```
+
+This outputs a file `example/authors.map` containing the following:
+```
+"chrisjbillington"="chrisjbillington <devnull@localhost>"
+```
+Which we might edit to change `devnull@localhost` to an actual email address, before
+running:
+```bash
+python2 exporter.py example/repo_mapping.json -A example/authors.map
+```
+
+And our new git repository has been created at `example/example.git`, which looks
+like the following in Sublime merge:
+
+![git_screenshot.png](example/git_screenshot.png)
 
 
 FAQ
 ===
 
+Q. What's wrong with github's mercurial import?
+A. It doesn't import anonymous heads, and it gets the order of parents of merge commits
+   wrong randomly, resulting in an incorrect concept of which branch was merged into
+   which, causing useless diffs on merge commits.
+
 Q. Doesn't functionality like this properly belong in `hg-fast-export`?
 A. Yes, but I'm in a hurry to get this stuff working to port my own repositories, and
    it's easier to wrap `hg-fast-export` than to understand it well enough to modify it.
 
-TODO:
-
-List heads.
-
-If they have non-unique names, number them by date, newest gets the lowest number. Or,
-if they have bookmarks at them, use that.
-
-
+Q. This is all pretty annoying, isn't it?
+A. Yes
