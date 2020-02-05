@@ -49,6 +49,9 @@ def init_git_repo(git_repo):
         sys.exit(1)
     mkdir_p(git_repo)
     subprocess.check_call(['git', 'init', git_repo])
+    with switch_directory(git_repo):
+        # Needed on Windows:
+        subprocess.check_call(['git', 'config', 'core.ignoreCase', 'false'])
 
 def copy_hg_repo(hg_repo):
     random_hex = hexlify(os.urandom(16))
