@@ -59,7 +59,7 @@ This script will, for each mercurial repo in the `REPO_MAPPING_FILE`:
 5. `cd` to the destination git repository directory
 6. Run `hg-fast-export.sh -r <hg_repo_path> [args ...]`, passing all  arguments that
    were passed  to 
-7. run `git reset --hard master` to put the git repository into a clean state.
+7. run `git checkout master` to put the git repository into a clean state.
 
 
 Example

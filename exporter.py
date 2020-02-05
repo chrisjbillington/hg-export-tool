@@ -128,7 +128,7 @@ def convert(hg_repo_copy, git_repo, fast_export_args):
             [FAST_EXPORT, '-r', hg_repo_copy]
             + fast_export_args
         )
-        subprocess.check_call(['git', 'reset', '--hard', 'master'])
+        subprocess.check_call(['git', 'checkout', 'master'])
 
 def process_repo(hg_repo, git_repo, fast_export_args):
     init_git_repo(git_repo)
