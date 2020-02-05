@@ -14,22 +14,21 @@ This script uses Python 2 because `hg-fast-export` is Python 2 only at present.
 Requirements
 ============
 
-To use this tool, you'll need Python 2.7 with the mercurial module installed, and you'll
-need `hg-fast-export`. You will also need the `git` and `hg` commands to be in your
-path, such that they function from the command line.
+To use this tool, you'll need Python 2.7 with the mercurial module installed. You will
+also need the `git` and `hg` commands to be in your path, such that they function from
+the command line. On Windows, you will need to install Git for windows in order to have
+git bash, which is needed by `hg-fast-export`.
 
 To install mercurial, run: `pip install mercurial`, or use your system's package manager
 to install the mercurial libraries for Python 2.
 
-Then clone this repository, `cd` to it and clone `hg-fast-export` into it:
-```bash
-git clone https://github.com/frej/fast-export
-```
+To get this script, clone or download this repository.
 
-Running
+
+Usage
 =======
 
-run this script as `python2 exporter.py REPO_MAPPING_FILE [args ...]`
+Run this script as `python2 exporter.py REPO_MAPPING_FILE [args ...]`
 
 where `REPO MAPPING FILE` is the path to a file containing JSON mapping filepaths of
 mercurial repositories to a desired filepaths of the resulting git repositories. The git
@@ -46,17 +45,18 @@ desired git commit names and emails by editing on the right side of the equals s
 each line, otherwise `<devnull@localhost>` will be used for all unknown email addresses
 (the default behaviour of `hg-fast-export`)
 
-On Windows, you will need to install Git for windows in order to have git bash, as bash
-is needed by `hg-fast-export`. You will need to tell this script the path to git bash so
-that it may use it. You can do this by passing an additional argument, running this
-script as, for example:
+On Windows, you will need to tell the script the path to git bash so that it may run
+`hg-fast-export` using it. You can do this by passing an additional argument as follows:
 
 ```bash
-python2 exporter.py --bash=C:\Program Files\Git\bin\bash.exe REPO_MAPPING_FILE [args ...]`
+python2 exporter.py --bash="C:\Program Files\Git\bin\bash.exe" REPO_MAPPING_FILE [args ...]`
 ```
 
 Where the path is the location of git bash on your system
 
+
+What it does
+============
 
 This script will, for each mercurial repo in the `REPO_MAPPING_FILE`:
 
