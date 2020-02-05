@@ -143,6 +143,7 @@ def main():
         if arg.startswith('--bash'):
             del sys.argv[i]
             BASH = arg.split('=', 1)[1]
+            break
         else:
             BASH = '/bin/sh'
     try:
