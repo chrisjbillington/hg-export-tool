@@ -86,6 +86,7 @@ Example
 
 An example is included in this repository, of a mercurial repository
 `example/example.hg`, which looks like this in `tortoisehg`:
+
 ![hg_screenshot.png](example/hg_screenshot.png)
 
 There is a repo mapping file `example/repo_mapping.json` with
