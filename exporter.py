@@ -12,13 +12,6 @@ import itertools
 
 here = os.path.dirname(os.path.abspath(__file__))
 FAST_EXPORT = os.path.abspath(os.path.join(here, 'fast-export', 'hg-fast-export.sh'))
-if not os.path.exists(FAST_EXPORT):
-    print(
-        "%s does not exist. " % FAST_EXPORT
-        + "Please read README.md for instructions on obtaining hg-fast-export."
-    )
-    sys.exit(1)
-
 
 def mkdir_p(path):
     try:
