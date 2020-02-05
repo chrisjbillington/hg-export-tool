@@ -16,7 +16,7 @@ Requirements
 
 To use this tool, you'll need Python 2.7 with the mercurial module installed. You will
 also need the `git` and `hg` commands to be in your path, such that they function from
-the command line. On Windows, you will need to install Git for windows in order to have
+the command line. On Windows, you will need to install Git for Windows in order to have
 git bash, which is needed by `hg-fast-export`.
 
 To install mercurial, run: `pip install mercurial`, or use your system's package manager
@@ -31,9 +31,19 @@ Usage
 Run this script as `python2 exporter.py REPO_MAPPING_FILE [args ...]`
 
 where `REPO MAPPING FILE` is the path to a file containing JSON mapping filepaths of
-mercurial repositories to a desired filepaths of the resulting git repositories. The git
-repositories must not already exist. If the filepaths in this file are relative paths,
-they will be interpreted relative to the directory containing the repo mapping file.
+mercurial repositories to the desired filepaths of the resulting git repositories, for
+example:
+
+```json
+{
+    "example.hg": "example.git",
+    "/some/other/repo.hg": "/some/other/repo.git"
+}
+```
+
+The git repositories must not already exist. If the filepaths in this file are relative
+paths, they will be interpreted relative to the directory containing the repo mapping
+file.
 
 All remaining arguments will be passed to invocations of `hg-fast-export.sh`. One
 argument you will probably want to use is `-A` to pass an author map file. To get a list
@@ -43,7 +53,7 @@ the same directory as the repo mapping file, in the correct format for passing t
 `hg-fast-export.sh` with the `-A` argument. You can modify this file to fill in the
 desired git commit names and emails by editing on the right side of the equals sign on
 each line, otherwise `<devnull@localhost>` will be used for all unknown email addresses
-(the default behaviour of `hg-fast-export`)
+(the default behaviour of `hg-fast-export`).
 
 On Windows, you will need to tell the script the path to git bash so that it may run
 `hg-fast-export` using it. You can do this by passing an additional argument as follows:
