@@ -122,24 +122,29 @@ def fix_branches(hg_repo):
                     ]
                 )
 
-def convert(hg_repo_copy, git_repo, fast_export_args):
+def convert(hg_repo_copy, git_repo, fast_export_args, bash):
     with switch_directory(git_repo):
         subprocess.check_call(
-            [FAST_EXPORT, '-r', hg_repo_copy]
-            + fast_export_args
+            [bash, FAST_EXPORT, '-r', hg_repo_copy] + fast_export_args
         )
         subprocess.check_call(['git', 'checkout', 'master'])
 
-def process_repo(hg_repo, git_repo, fast_export_args):
+def process_repo(hg_repo, git_repo, fast_export_args, bash):
     init_git_repo(git_repo)
     hg_repo_copy = copy_hg_repo(hg_repo)
     try:
         fix_branches(hg_repo_copy)
-        convert(hg_repo_copy, git_repo, fast_export_args)
+        convert(hg_repo_copy, git_repo, fast_export_args, bash)
     finally:
         shutil.rmtree(hg_repo_copy)
 
 def main():
+    for i, arg in enumerate(sys.argv[:]):
+        if arg.startswith('--bash'):
+            del sys.argv[i]
+            BASH = arg.split('=', 1)[1]
+        else:
+            BASH = '/bin/sh'
     try:
         REPO_MAPPING_FILE = sys.argv[1]
     except IndexError:
@@ -166,6 +171,7 @@ def main():
             os.path.join(basedir, hg_repo),
             os.path.join(basedir, git_repo),
             fast_export_args,
+            BASH
         )
 
 if __name__ == '__main__':

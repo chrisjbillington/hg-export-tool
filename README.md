@@ -46,8 +46,17 @@ desired git commit names and emails by editing on the right side of the equals s
 each line, otherwise `<devnull@localhost>` will be used for all unknown email addresses
 (the default behaviour of `hg-fast-export`)
 
-On Windows, you will need to run the script from within a 'git bash' shell or whatever
-git comes with on Windows, so that bash exists, which `hg-fast-export` uses.
+On Windows, you will need to install Git for windows in order to have git bash, as bash
+is needed by `hg-fast-export`. You will need to tell this script the path to git bash so
+that it may use it. You can do this by passing an additional argument, running this
+script as, for example:
+
+```bash
+python2 exporter.py --bash=C:\Program Files\Git\bin\bash.exe REPO_MAPPING_FILE [args ...]`
+```
+
+Where the path is the location of git bash on your system
+
 
 This script will, for each mercurial repo in the `REPO_MAPPING_FILE`:
 
