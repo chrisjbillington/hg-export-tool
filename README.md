@@ -101,13 +101,16 @@ FAQ
 ===
 
 Q. What's wrong with github's mercurial import?
+
 A. It doesn't import anonymous heads, and it gets the order of parents of merge commits
    wrong randomly, resulting in an incorrect concept of which branch was merged into
-   which, causing useless diffs on merge commits.
+   which, causing less-than-useful diffs for merge commits.
 
 Q. Doesn't functionality like this properly belong in `hg-fast-export`?
+
 A. Yes, but I'm in a hurry to get this stuff working to port my own repositories, and
    it's easier to wrap `hg-fast-export` than to understand it well enough to modify it.
 
 Q. This is all pretty annoying, isn't it?
+
 A. Yes
