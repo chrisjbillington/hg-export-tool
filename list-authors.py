@@ -44,7 +44,7 @@ with open(authors_map, 'w') as f:
             git_author = author
         elif '@' in author:
             # Need to prepend a username, use the email prefix:
-            git_author = author.strip('<>').split('@', 1)[0] + ' ' + author
+            git_author = author.strip('<>').split('@', 1)[0] + ' <' + author + '>'
         else:
             # Need to append an email address, use devnull@localhost:
             git_author = author + ' <devnull@localhost>'
