@@ -200,7 +200,7 @@ This outputs a file `example/authors.map` containing the following:
 Which we might edit to change `devnull@localhost` to an actual email address, before
 running:
 ```bash
-python2 exporter.py example/repo_mapping.json -A example/authors.map
+python2 exporter.py example/repo_mapping.json -A example/authors.map --hg-hash
 ```
 
 And our new git repository has been created at `example/example.git`, which looks
