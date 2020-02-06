@@ -11,19 +11,12 @@ The branch names used are of the form `<existing_branch_name>-anonymous-<n>` wit
 unique integer. If such a head has a bookmark, the bookmark name will be used instead.
 This ensures these heads survive the conversion to git.
 
-<p style="text-align: center;">
-
-![hg_screenshot.png](example/hg_screenshot.png)
-
-⬇
-
-⬇
-
-⬇
-
+![hg_screenshot.png](example/hg_screenshot.png)\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⬇\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⬇\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⬇\
 ![git_screenshot.png](example/git_screenshot.png)
 
-</p>
 
 Why
 ===
