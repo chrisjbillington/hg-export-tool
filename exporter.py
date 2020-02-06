@@ -106,14 +106,15 @@ def fix_branches(hg_repo):
             # Amend the head to modify its branch name:
             with switch_directory(hg_repo):
                 subprocess.check_call(['hg', 'up', head['hash']])
+                # Commit must be in draft phase to be able to amend it:
+                subprocess.check_call(
+                    ['hg', 'phase', '--draft', '--force', head['hash']]
+                )
                 subprocess.check_call(['hg', 'branch', new_branch_name])
                 msg = subprocess.check_output(
                     ['hg', 'log', '-r', head['hash'], '--template', '{desc}']
                 ).rstrip('\n')
-                print(repr(msg))
-                subprocess.check_call(
-                    ['hg', 'commit', '--amend', '-m', msg]
-                )
+                subprocess.check_call(['hg', 'commit', '--amend', '-m', msg])
 
 def convert(hg_repo_copy, git_repo, fast_export_args, bash):
     with switch_directory(git_repo):
