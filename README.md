@@ -1,20 +1,26 @@
 hg-export-tool
 =====================
 
-This is a script to run `hg-fast-export` on a list of mercurial repositories to convert
-them to git repositories. If there are anonymous heads, it first adds a commit to give
-them a unique branch name by appending `-anonymous-<n>` to their existing branch names,
-with n a unique integer. If such a head has a bookmark, the bookmark name will be used
-instead. This ensures these heads survive the conversion to git.
+This is a script to run [`hg-fast-export`](https://github.com/frej/fast-export/) on a
+list of mercurial repositories to convert them to git repositories. If there are
+multiple heads in the same branch, it first converts each to a uniquely-named branch, by
+amending the commit at each head to add a branch name. This conversion is done with a
+temporary copy of the repository; the original repository is left unmodified.
+
+The branch names used are of the form `<existing_branch_name>-anonymous-<n>` with n a
+unique integer. If such a head has a bookmark, the bookmark name will be used instead.
+This ensures these heads survive the conversion to git.
 
 Why
 ===
 
 Q. What's wrong with github's mercurial import?
 
-A. It doesn't import all anonymous heads, and it gets the order of parents of merge
-   commits wrong randomly, resulting in an incorrect concept of which branch was merged
-   into which, causing less-than-useful diffs for merge commits.
+A. It doesn't import bookmarked/anonymous heads, and it gets the order of parents of
+   merge commits wrong randomly, resulting in an incorrect concept of which branch was
+   merged into which, causing less-than-useful commit graphs and incorrect diffs for
+   merge commits. The former issue is by design, and I reported the latter issue to
+   github but did not get a response.
 
 Q. Doesn't functionality like this properly belong in `hg-fast-export`?
 
@@ -25,9 +31,11 @@ Q. Why Python 2?
 
 A. Because `hg-fast-export` is Python 2 only at present.
 
-Q. This is all pretty annoying, isn't it?
+Q. It's pretty disappointing that BitBucket dropped mercurial support without providing
+   any migration tools, isn't it? Would you recommend avoiding doing business with
+   Atlassian in the future?
 
-A. Yes
+A. Yes and yes.
 
 
 Requirements
@@ -98,11 +106,12 @@ What it does
 This script will, for each mercurial repo in the `REPO_MAPPING_FILE`:
 
 1. Make a temporary copy of the mercurial repository
-2. When a branch has more than one head, make empty branch commits such that each extra
-   head has a child commit with a unique branch name
+2. When a branch has more than one head, amend the head commit of that branch to give it
+   a unique branch name
 3. ensure the destination git repository directory exists
 4. run `git init` in in the destination repository
-5. Run `git config core.ignoreCase false` to set git case-sensitive for the repo
+5. Run `git config core.ignoreCase false` to set git case-sensitive for the repo (this
+   is required for `hg-fast-export` to not raise an error on Windows)
 5. `cd` to the destination git repository directory
 6. Run `hg-fast-export.sh -r <hg_repo_path> [args ...]`, passing all  arguments that
    were passed  to `exporter.py`
@@ -125,10 +134,10 @@ the following contents:
 }
 ```
 
-Note: Due to some line-ending weirdness I am not familiar with, when cloing this
-repository on Windows, the example mercurial repository appears as having uncommitted
-changes. Revert them before continuing, as mercurial with otherwise refuse to operate on
-this repository:
+Note: Due to git checking out files with platform-specific line-endings, when cloning
+this repository on Windows, the example mercurial repository appears as having
+uncommitted changes. Revert them before continuing, as mercurial with otherwise refuse
+to operate on this repository:
 ```bash
 hg update -C -R example/example.hg
 ```
@@ -152,5 +161,3 @@ And our new git repository has been created at `example/example.git`, which look
 like the following in Sublime merge:
 
 ![git_screenshot.png](example/git_screenshot.png)
-
-

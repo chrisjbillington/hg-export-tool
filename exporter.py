@@ -62,7 +62,7 @@ def get_heads(hg_repo):
         'commit_hash': '<hash>',
         'branch': '<branchname>',
         'bookmark': '<bookmark name or None>',
-        'timstamp': '<utc_unix_timestamp>',
+        'timstamp': <utc_unix_timestamp>,
     }
 
     """
@@ -103,19 +103,16 @@ def fix_branches(hg_repo):
                 new_branch_name = head['bookmark']
             else:
                 new_branch_name = branch + '-anonymous-%d' % counter.next()
-            # Make a new commit with the new branch name:
+            # Amend the head to modify its branch name:
             with switch_directory(hg_repo):
                 subprocess.check_call(['hg', 'up', head['hash']])
                 subprocess.check_call(['hg', 'branch', new_branch_name])
+                msg = subprocess.check_output(
+                    ['hg', 'log', '-r', head['hash'], '--template', '{desc}']
+                ).rstrip('\n')
+                print(repr(msg))
                 subprocess.check_call(
-                    [
-                        'hg',
-                        'commit',
-                        '-u',
-                        'hg-export-tool',
-                        '-m',
-                        'Convert anonymous head/bookmark to named branch',
-                    ]
+                    ['hg', 'commit', '--amend', '-m', msg]
                 )
 
 def convert(hg_repo_copy, git_repo, fast_export_args, bash):
