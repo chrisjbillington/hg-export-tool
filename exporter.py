@@ -145,7 +145,7 @@ def main():
         print("Error: no REPO_MAPPING_FILE passed as command line argument")
         sys.exit(1)
 
-    fast_export_args = sys.argv[1:]
+    fast_export_args = sys.argv[2:]
 
     REPO_MAPPING_FILE = os.path.abspath(REPO_MAPPING_FILE)
     basedir = os.path.dirname(REPO_MAPPING_FILE)

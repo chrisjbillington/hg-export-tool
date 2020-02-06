@@ -83,9 +83,10 @@ The git repositories must not already exist. If the filepaths in this file are r
 paths, they will be interpreted relative to the directory containing the repo mapping
 file.
 
-All remaining arguments will be passed to invocations of `hg-fast-export.sh`. One
-argument you will probably want to use is `-A` to pass an author map file. To get a list
-of authors present in the mercurial commits, run the `list-authors.py` script as
+All remaining arguments will be passed to invocations of `hg-fast-export.sh`.
+
+One argument you will probably want to use is `-A` to pass an author map file. To get a
+list of authors present in the mercurial commits, run the `list-authors.py` script as
 `python2 list-authors.py REPO_MAPPING_FILE`. This will output a file `authors.map` in
 the same directory as the repo mapping file, in the correct format for passing to
 `hg-fast-export.sh` with the `-A` argument, e.g:
@@ -97,6 +98,44 @@ You can modify this file to fill in the desired git commit names and emails by e
 on the right side of the equals sign on each line, otherwise `<devnull@localhost>` will
 be used for all unknown email addresses (the default behaviour of `hg-fast-export`).
 
+Another argument you will likely want to pass is `--hg-hash`. This will add git notes to
+all converted commits, with the hg commit hash of the commit they came from. These notes
+are in the `hg` namespace, and can be shown with `git log` like:
+
+```bash
+$ git log --show-notes=hg
+commit 6e77576102b52186b77b3a43b272a20179097839 (HEAD -> master)
+Merge: 3324003 896fd1f
+Author: chrisjbillington <chrisjbillington@gmail.com>
+Date:   Thu Feb 6 10:18:31 2020 -0500
+
+    Merge with feature
+
+Notes (hg):
+    169d1e2800cba83bef09e17f6d01c07dc5b7371b
+
+commit 896fd1f405a4e3797c5d136627386ad49add36f8 (feature)
+Author: chrisjbillington <chrisjbillington@gmail.com>
+Date:   Thu Feb 6 10:18:12 2020 -0500
+
+    Close feature branch
+
+Notes (hg):
+    74d0d6173c2367e51c5d12f2bb54c39a545c8975
+
+...
+
+```
+
+Or you can get the hg hash of a single git commit by showing a single note:
+
+```bash
+$ git notes --ref hg show HEAD
+169d1e2800cba83bef09e17f6d01c07dc5b7371b
+```
+
+Windows
+=======
 On Windows, you will need to tell the script the path to git bash so that it may run
 `hg-fast-export` using it, for example:
 
@@ -113,15 +152,15 @@ What it does
 This script will, for each mercurial repo in the `REPO_MAPPING_FILE`:
 
 1. Make a temporary copy of the mercurial repository
-2. When a branch has more than one head, amend the head commit of that branch to give it
-   a unique branch name
+2. When a branch has more than one head, amend the head commits of that branch to give
+   them unique branch names
 3. ensure the destination git repository directory exists
 4. run `git init` in in the destination repository
 5. Run `git config core.ignoreCase false` to set git case-sensitive for the repo (this
    is required for `hg-fast-export` to not raise an error on Windows)
 5. `cd` to the destination git repository directory
-6. Run `hg-fast-export.sh -r <hg_repo_path> [args ...]`, passing all  arguments that
-   were passed  to `exporter.py`
+6. Run `hg-fast-export.sh -r <hg_repo_path> [args ...]`, passing all the additional
+   arguments that were passed  to `exporter.py`
 7. run `git checkout master` to put the git repository into a clean state
 
 
