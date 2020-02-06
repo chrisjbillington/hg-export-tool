@@ -50,7 +50,7 @@ Usage
 
 Run this script as:
 ```bash
-python2 [--bash=<path-to-git-bash-on-windows>] exporter.py REPO_MAPPING_FILE [args ...]
+python2 exporter.py [--bash=<path-to-git-bash-on-windows>] REPO_MAPPING_FILE [args ...]
 ```
 
 where `REPO MAPPING FILE` is the path to a file containing JSON mapping filepaths of
