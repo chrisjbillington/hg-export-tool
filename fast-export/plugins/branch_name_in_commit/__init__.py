@@ -10,7 +10,7 @@ class Filter:
         self.skip_master = args.pop('skipmaster', False)
 
         if self.sameline and not self.start:
-            raise ValueError("'sameline' option only allowed if 'start' given")
+            raise ValueError("sameline option only allowed if 'start' given")
         if args:
             raise ValueError("Unknown args: " + ','.join(args))
 

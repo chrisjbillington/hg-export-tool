@@ -11,9 +11,9 @@ fi
 if ! $READLINK -f "$(which "$0")" > /dev/null 2>&1 ; then
     ROOT="$(dirname "$(which "$0")")"
     if [ ! -f "$ROOT/hg-fast-export.py" ] ; then
-  echo "hg-fast-exports requires a readlink implementation which knows" \
-       " how to canonicalize paths in order to be called via a symlink."
-  exit 1
+	echo "hg-fast-exports requires a readlink implementation which knows" \
+	     " how to canonicalize paths in order to be called via a symlink."
+	exit 1
     fi
 else
     ROOT="$(dirname "$($READLINK -f "$(which "$0")")")"
