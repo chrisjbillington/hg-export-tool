@@ -11,7 +11,7 @@ from collections import defaultdict
 import itertools
 
 here = os.path.dirname(os.path.abspath(__file__))
-FAST_EXPORT = os.path.abspath(os.path.join(here, 'fast-export', 'hg-fast-export.sh'))
+FAST_EXPORT_DIR = os.path.join(here, 'fast-export')
 
 def mkdir_p(path):
     try:
@@ -118,8 +118,11 @@ def fix_branches(hg_repo):
 
 def convert(hg_repo_copy, git_repo, fast_export_args, bash):
     with switch_directory(git_repo):
+        env = os.environ.copy()
+        env['PYTHON'] = sys.executable
+        env['PATH'] = FAST_EXPORT_DIR + os.pathsep + env.get('PATH', '')
         subprocess.check_call(
-            [bash, FAST_EXPORT, '-r', hg_repo_copy] + fast_export_args
+            [bash, 'hg-fast-export.sh', '-r', hg_repo_copy] + fast_export_args, env=env
         )
         subprocess.check_call(['git', 'checkout', 'master'])
 
@@ -139,11 +142,16 @@ def main():
             BASH = arg.split('=', 1)[1]
             break
         else:
-            BASH = '/bin/sh'
+            if os.name == 'nt':
+                msg = "Missing --bash command line argument with path to git bash\n"
+                sys.stderr.write(msg)
+                sys.exit(1)
+            BASH = '/bin/bash'
     try:
         REPO_MAPPING_FILE = sys.argv[1]
     except IndexError:
-        print("Error: no REPO_MAPPING_FILE passed as command line argument")
+        msg = "Error: no REPO_MAPPING_FILE passed as command line argument\n"
+        sys.stderr.write(msg)
         sys.exit(1)
 
     fast_export_args = sys.argv[2:]

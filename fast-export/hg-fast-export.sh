@@ -3,7 +3,21 @@
 # Copyright (c) 2007, 2008 Rocco Rutte <pdmef@gmx.net> and others.
 # License: MIT <http://www.opensource.org/licenses/mit-license.php>
 
-ROOT="$(dirname "$0")"
+READLINK="readlink"
+if command -v greadlink > /dev/null; then
+  READLINK="greadlink" # Prefer greadlink over readlink
+fi
+
+if ! $READLINK -f "$(which "$0")" > /dev/null 2>&1 ; then
+    ROOT="$(dirname "$(which "$0")")"
+    if [ ! -f "$ROOT/hg-fast-export.py" ] ; then
+  echo "hg-fast-exports requires a readlink implementation which knows" \
+       " how to canonicalize paths in order to be called via a symlink."
+  exit 1
+    fi
+else
+    ROOT="$(dirname "$($READLINK -f "$(which "$0")")")"
+fi
 
 REPO=""
 PFX="hg2git"
