@@ -1,3 +1,4 @@
 example/authors.map
 example/example.git/
 *.pyc
+labscript/*
