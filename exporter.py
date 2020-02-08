@@ -102,7 +102,7 @@ def fix_branches(hg_repo):
             if head['bookmark'] is not None:
                 new_branch_name = head['bookmark']
             else:
-                new_branch_name = branch + '-anonymous-%d' % counter.next()
+                new_branch_name = branch + '-%d' % counter.next()
             # Amend the head to modify its branch name:
             with switch_directory(hg_repo):
                 subprocess.check_call(['hg', 'up', head['hash']])

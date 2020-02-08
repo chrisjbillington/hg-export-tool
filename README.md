@@ -7,9 +7,9 @@ multiple heads in the same branch, it first converts each to a uniquely-named br
 amending the commit at each head to add a branch name. This conversion is done with a
 temporary copy of the repository; the original repository is left unmodified.
 
-The branch names used are of the form `<existing_branch_name>-anonymous-<n>` with n a
-unique integer. If such a head has a bookmark, the bookmark name will be used instead.
-This ensures these heads survive the conversion to git.
+The branch names used are of the form `<existing_branch_name>-<n>` with n an
+incrementing integer starting from 1. If such a head has a bookmark, the bookmark name
+will be used instead. This ensures these heads survive the conversion to git.
 
 ![hg_screenshot.png](example/hg_screenshot.png)\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⬇\
