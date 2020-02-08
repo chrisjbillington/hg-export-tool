@@ -141,12 +141,12 @@ def main():
             del sys.argv[i]
             BASH = arg.split('=', 1)[1]
             break
-        else:
-            if os.name == 'nt':
-                msg = "Missing --bash command line argument with path to git bash\n"
-                sys.stderr.write(msg)
-                sys.exit(1)
-            BASH = '/bin/bash'
+    else:
+        if os.name == 'nt':
+            msg = "Missing --bash command line argument with path to git bash\n"
+            sys.stderr.write(msg)
+            sys.exit(1)
+        BASH = '/bin/bash'
     try:
         REPO_MAPPING_FILE = sys.argv[1]
     except IndexError:
