@@ -162,6 +162,8 @@ This script will, for each mercurial repo in the `REPO_MAPPING_FILE`:
 6. Run `hg-fast-export.sh -r <hg_repo_path> [args ...]`, passing all the additional
    arguments that were passed  to `exporter.py`
 7. run `git checkout master` to put the git repository into a clean state
+8. If `--hg-hashes` was given, update the git notes to contain the hashes of the
+   original mercurial anonymous/bookmarked heads before any  were amended.
 
 
 Example

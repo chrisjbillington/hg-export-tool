@@ -69,6 +69,9 @@ def get_heads(hg_repo):
     return results
 
 def fix_branches(hg_repo):
+    """Amend anonymous/bookmarked additional heads on a branch to be on a new branch ,
+    either <branchname>-<n>, or the first bookmark name. Return a dict of commits
+    amended mapping the original commit hash to the amended one"""
     all_heads = get_heads(hg_repo)
     heads_by_branch = defaultdict(list)
     # Group by branch:
@@ -79,6 +82,7 @@ def fix_branches(hg_repo):
         heads.sort(reverse=True, key=lambda head: head['timestamp'])
     # Iterate over additional heads of each branch, skipping over the most recently
     # commited to:
+    amended_commits = {}
     for branch, heads in heads_by_branch.items():
         counter = itertools.count(1)
         for head in heads[1:]:
@@ -97,6 +101,11 @@ def fix_branches(hg_repo):
                 ['hg', 'log', '-r', head['hash'], '--template', '{desc}'], cwd=hg_repo
             ).rstrip('\n')
             subprocess.check_call(['hg', 'commit', '--amend', '-m', msg], cwd=hg_repo)
+            new_hash = subprocess.check_output(
+                ['hg', 'log', '-l', '1', '--template', '{node}\n'], cwd=hg_repo
+            ).rstrip('\n')
+            amended_commits[head['hash']] = new_hash
+    return amended_commits
 
 def convert(hg_repo_copy, git_repo, fast_export_args, bash):
     env = os.environ.copy()
@@ -109,14 +118,31 @@ def convert(hg_repo_copy, git_repo, fast_export_args, bash):
     )
     subprocess.check_call(['git', 'checkout', 'master'], cwd=git_repo)
 
+def update_notes(git_repo, amended_commits):
+    """For commits that we amended on the hg side, update the git note for the
+    corresponding commit to point to the original, unamended hg commit"""
+    cmd = ['git', 'log', '--branches', '--show-notes=hg', '--format=format:%H %N']
+    lines = subprocess.check_output(cmd, cwd=git_repo).decode('utf8').splitlines()
+    # Mapping of amended hg hashes to git hashes, this is what is currently in the
+    # notes:
+    git_hashes = dict([line.strip().split()[::-1] for line in lines if line.strip()])
+    for orig_hg_hash, amended_hg_hash in amended_commits.items():
+        git_hash = git_hashes[amended_hg_hash]
+        cmd = ['git', 'notes', '--ref', 'hg', 'remove', git_hash]
+        subprocess.check_call(cmd, cwd=git_repo)
+        cmd = ['git', 'notes', '--ref', 'hg', 'add', git_hash, '-m', orig_hg_hash]
+        subprocess.check_call(cmd, cwd=git_repo)
+
 def process_repo(hg_repo, git_repo, fast_export_args, bash):
     init_git_repo(git_repo)
     hg_repo_copy = copy_hg_repo(hg_repo)
     try:
-        fix_branches(hg_repo_copy)
+        amended_commits = fix_branches(hg_repo_copy)
         convert(hg_repo_copy, git_repo, fast_export_args, bash)
     finally:
         shutil.rmtree(hg_repo_copy)
+    if amended_commits and '--hg-hash' in fast_export_args:
+        update_notes(git_repo, amended_commits)
 
 def main():
     for i, arg in enumerate(sys.argv[:]):
