@@ -17,15 +17,9 @@ with open(REPO_MAPPING_FILE) as f:
 
 authors = set()
 for repo in repos:
-    repo = os.path.join(basedir, repo)
-    cwd = os.getcwd()
-    try:
-        os.chdir(repo)
-        output = subprocess.check_output(['hg', 'log', '--template', '{author}\n'])
-        authors = authors.union(output.splitlines())
-    finally:
-        os.chdir(cwd)
-
+    cmd = ['hg', 'log', '--template', '{author}\n']
+    output = subprocess.check_output(cmd, cwd=os.path.join(basedir, repo))
+    authors = authors.union(output.splitlines())
 
 authors_map = os.path.join(basedir, 'authors.map')
 if os.path.exists(authors_map):
@@ -35,7 +29,6 @@ if os.path.exists(authors_map):
         + "delete it and run this script again"
     )
     sys.exit(1)
-
 
 with open(authors_map, 'w') as f:
     for author in authors:

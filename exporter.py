@@ -6,7 +6,6 @@ import errno
 from binascii import hexlify
 from tempfile import gettempdir
 import shutil
-from contextlib import contextmanager
 from collections import defaultdict
 import itertools
 
@@ -22,29 +21,14 @@ def mkdir_p(path):
         else:
             raise
 
-@contextmanager
-def switch_directory(directory):
-    """Context manager to chdir to a directory temporarily"""
-    cwd = os.getcwd()
-    try:
-        os.chdir(directory)
-        yield
-    finally:
-        os.chdir(cwd)
-
 def init_git_repo(git_repo):
     if os.path.exists(git_repo):
-        print(
-            "repo {} already exists, please delete it and run this script again".format(
-                git_repo
-            )
-        )
+        msg = "repo {} already exists, please delete it and run this script again\n"
+        sys.stderr.write(msg.format(git_repo))
         sys.exit(1)
     mkdir_p(git_repo)
     subprocess.check_call(['git', 'init', git_repo])
-    with switch_directory(git_repo):
-        # Needed on Windows:
-        subprocess.check_call(['git', 'config', 'core.ignoreCase', 'false'])
+    subprocess.check_call(['git', 'config', 'core.ignoreCase', 'false'], cwd=git_repo)
 
 def copy_hg_repo(hg_repo):
     random_hex = hexlify(os.urandom(16))
@@ -69,8 +53,7 @@ def get_heads(hg_repo):
 
     cmd = ['hg', 'heads', '--closed', '--topo', '--template', 'json']
     results = []
-    with switch_directory(hg_repo):
-        output = subprocess.check_output(cmd)
+    output = subprocess.check_output(cmd, cwd=hg_repo)
     heads = json.loads(output)
     for head in heads:
         results.append(
@@ -104,27 +87,27 @@ def fix_branches(hg_repo):
             else:
                 new_branch_name = branch + '-%d' % counter.next()
             # Amend the head to modify its branch name:
-            with switch_directory(hg_repo):
-                subprocess.check_call(['hg', 'up', head['hash']])
-                # Commit must be in draft phase to be able to amend it:
-                subprocess.check_call(
-                    ['hg', 'phase', '--draft', '--force', head['hash']]
-                )
-                subprocess.check_call(['hg', 'branch', new_branch_name])
-                msg = subprocess.check_output(
-                    ['hg', 'log', '-r', head['hash'], '--template', '{desc}']
-                ).rstrip('\n')
-                subprocess.check_call(['hg', 'commit', '--amend', '-m', msg])
+            subprocess.check_call(['hg', 'up', head['hash']], cwd=hg_repo)
+            # Commit must be in draft phase to be able to amend it:
+            subprocess.check_call(
+                ['hg', 'phase', '--draft', '--force', head['hash']], cwd=hg_repo
+            )
+            subprocess.check_call(['hg', 'branch', new_branch_name], cwd=hg_repo)
+            msg = subprocess.check_output(
+                ['hg', 'log', '-r', head['hash'], '--template', '{desc}'], cwd=hg_repo
+            ).rstrip('\n')
+            subprocess.check_call(['hg', 'commit', '--amend', '-m', msg], cwd=hg_repo)
 
 def convert(hg_repo_copy, git_repo, fast_export_args, bash):
-    with switch_directory(git_repo):
-        env = os.environ.copy()
-        env['PYTHON'] = sys.executable
-        env['PATH'] = FAST_EXPORT_DIR + os.pathsep + env.get('PATH', '')
-        subprocess.check_call(
-            [bash, 'hg-fast-export.sh', '-r', hg_repo_copy] + fast_export_args, env=env
-        )
-        subprocess.check_call(['git', 'checkout', 'master'])
+    env = os.environ.copy()
+    env['PYTHON'] = sys.executable
+    env['PATH'] = FAST_EXPORT_DIR + os.pathsep + env.get('PATH', '')
+    subprocess.check_call(
+        [bash, 'hg-fast-export.sh', '-r', hg_repo_copy] + fast_export_args,
+        env=env,
+        cwd=git_repo,
+    )
+    subprocess.check_call(['git', 'checkout', 'master'], cwd=git_repo)
 
 def process_repo(hg_repo, git_repo, fast_export_args, bash):
     init_git_repo(git_repo)
