@@ -90,7 +90,6 @@ list of authors present in the mercurial commits, run the `list-authors.py` scri
 `python2 list-authors.py REPO_MAPPING_FILE`. This will output a file `authors.map` in
 the same directory as the repo mapping file, in the correct format for passing to
 `hg-fast-export.sh` with the `-A` argument, e.g:
-
 ```bash
 python2 exporter.py /some/path/repo_mapping.json -A /some/path/authors.map 
 ```
@@ -101,7 +100,6 @@ be used for all unknown email addresses (the default behaviour of `hg-fast-expor
 Another argument you will likely want to pass is `--hg-hash`. This will add git notes to
 all converted commits, with the hg commit hash of the commit they came from. These notes
 are in the `hg` namespace, and can be shown with `git log` like:
-
 ```bash
 $ git log --show-notes=hg
 commit 6e77576102b52186b77b3a43b272a20179097839 (HEAD -> master)
@@ -128,10 +126,19 @@ Notes (hg):
 ```
 
 Or you can get the hg hash of a single git commit by showing a single note:
-
 ```bash
 $ git notes --ref hg show HEAD
 169d1e2800cba83bef09e17f6d01c07dc5b7371b
+```
+
+If you push the repo somewhere, don't forget to push the notes:
+```bash
+$ git push origin refs/notes/*
+```
+
+Notes are not included in clones by default, to fetch them into a new clone do:
+```bash
+$ git fetch origin refs/notes/*:refs/notes/*
 ```
 
 Windows
