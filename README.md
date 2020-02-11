@@ -34,10 +34,6 @@ Q. Doesn't functionality like this properly belong in `hg-fast-export`?
 A. Yes, but I'm in a hurry to get this stuff working to port my own repositories, and
    it's easier to wrap `hg-fast-export` than to understand it well enough to modify it.
 
-Q. Why Python 2?
-
-A. Because `hg-fast-export` is Python 2 only at present.
-
 Q. It's pretty disappointing that BitBucket dropped mercurial support without providing
    any migration tools, isn't it? Would you recommend avoiding doing business with
    Atlassian in the future?
@@ -48,14 +44,14 @@ A. Yes and yes.
 Requirements
 ============
 
-To use this tool, you'll need Python 2.7 with the mercurial module installed. You will
-also need the `git` and `hg` commands to be in your path, such that they function from
-the command line. On Windows, you will need to install [Git for
+To use this tool, you'll need Python 2.7 or 3.5+ with the `mercurial` module installed.
+You will also need the `git` and `hg` commands to be in your path, such that they
+function from the command line. On Windows, you will need to install [Git for
 Windows](https://git-scm.com/download/win) in order to have git bash, which is needed by
 `hg-fast-export`.
 
 To install mercurial, run: `pip install mercurial`, or use your system's package manager
-to install the mercurial libraries for Python 2.
+to install the mercurial libraries for the version of Python you are using.
 
 To get this script, clone or download this repository.
 
@@ -65,7 +61,7 @@ Usage
 
 Run this script as:
 ```bash
-python2 exporter.py [--bash=<path-to-git-bash-on-windows>] REPO_MAPPING_FILE [args ...]
+python exporter.py [--bash=<path-to-git-bash-on-windows>] REPO_MAPPING_FILE [args ...]
 ```
 
 where `REPO MAPPING FILE` is the path to a file containing JSON mapping filepaths of
@@ -87,11 +83,11 @@ All remaining arguments will be passed to invocations of `hg-fast-export.sh`.
 
 One argument you will probably want to use is `-A` to pass an author map file. To get a
 list of authors present in the mercurial commits, run the `list-authors.py` script as
-`python2 list-authors.py REPO_MAPPING_FILE`. This will output a file `authors.map` in
+`python list-authors.py REPO_MAPPING_FILE`. This will output a file `authors.map` in
 the same directory as the repo mapping file, in the correct format for passing to
 `hg-fast-export.sh` with the `-A` argument, e.g:
 ```bash
-python2 exporter.py /some/path/repo_mapping.json -A /some/path/authors.map 
+python exporter.py /some/path/repo_mapping.json -A /some/path/authors.map 
 ```
 You can modify this file to fill in the desired git commit names and emails by editing
 on the right side of the equals sign on each line, otherwise `<devnull@localhost>` will
@@ -147,7 +143,7 @@ On Windows, you will need to tell the script the path to git bash so that it may
 `hg-fast-export` using it, for example:
 
 ```bash
-python2 exporter.py --bash="C:\Program Files\Git\bin\bash.exe" some/path/repo_mapping.json [args ...]`
+python exporter.py --bash="C:\Program Files\Git\bin\bash.exe" some/path/repo_mapping.json [args ...]`
 ```
 
 Where the path is the location of git bash on your system. On Unix you can omit that
@@ -199,7 +195,7 @@ hg update -C -R example/example.hg
 
 First we create an author mapping file:
 ```bash
-python2 list-authors.py example/repo_mapping.json
+python list-authors.py example/repo_mapping.json
 ```
 
 This outputs a file `example/authors.map` containing the following:
@@ -209,7 +205,7 @@ This outputs a file `example/authors.map` containing the following:
 Which we might edit to change `devnull@localhost` to an actual email address, before
 running:
 ```bash
-python2 exporter.py example/repo_mapping.json -A example/authors.map --hg-hash
+python exporter.py example/repo_mapping.json -A example/authors.map --hg-hash
 ```
 
 And our new git repository has been created at `example/example.git`, which looks

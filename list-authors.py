@@ -18,7 +18,7 @@ with open(REPO_MAPPING_FILE) as f:
 authors = set()
 for repo in repos:
     cmd = ['hg', 'log', '--template', '{author}\n']
-    output = subprocess.check_output(cmd, cwd=os.path.join(basedir, repo))
+    output = subprocess.check_output(cmd, cwd=os.path.join(basedir, repo)).decode('utf8')
     authors = authors.union(output.splitlines())
 
 authors_map = os.path.join(basedir, 'authors.map')

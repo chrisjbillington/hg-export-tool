@@ -7,9 +7,9 @@ def build_filter(args):
 
 class Filter:
     def __init__(self, args):
-        self.prefix = args
+        self.prefix = args.encode('utf8')
 
     def commit_message_filter(self, commit_data):
-        for match in re.findall('#[1-9][0-9]+', commit_data['desc']):
+        for match in re.findall(b'#[1-9][0-9]+', commit_data['desc']):
             commit_data['desc'] = commit_data['desc'].replace(
-                match, '#%s%s' % (self.prefix, match[1:]))
+                match, b'#%s%s' % (self.prefix, match[1:]))

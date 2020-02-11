@@ -23,6 +23,7 @@ def mkdir_p(path):
 
 def init_git_repo(git_repo):
     if os.path.exists(git_repo):
+        # shutil.rmtree(git_repo)
         msg = "repo {} already exists, please delete it and run this script again\n"
         sys.stderr.write(msg.format(git_repo))
         sys.exit(1)
@@ -31,7 +32,7 @@ def init_git_repo(git_repo):
     subprocess.check_call(['git', 'config', 'core.ignoreCase', 'false'], cwd=git_repo)
 
 def copy_hg_repo(hg_repo):
-    random_hex = hexlify(os.urandom(16))
+    random_hex = hexlify(os.urandom(16)).decode()
     hg_repo_copy = os.path.join(
         gettempdir(), os.path.basename(hg_repo) + '-' + random_hex
     )
@@ -89,7 +90,7 @@ def fix_branches(hg_repo):
             if head['bookmark'] is not None:
                 new_branch_name = head['bookmark']
             else:
-                new_branch_name = branch + '-%d' % counter.next()
+                new_branch_name = branch + '-%d' % next(counter)
             # Amend the head to modify its branch name:
             subprocess.check_call(['hg', 'up', head['hash']], cwd=hg_repo)
             # Commit must be in draft phase to be able to amend it:
@@ -99,11 +100,15 @@ def fix_branches(hg_repo):
             subprocess.check_call(['hg', 'branch', new_branch_name], cwd=hg_repo)
             msg = subprocess.check_output(
                 ['hg', 'log', '-r', head['hash'], '--template', '{desc}'], cwd=hg_repo
-            ).rstrip('\n')
+            ).rstrip(b'\n')
             subprocess.check_call(['hg', 'commit', '--amend', '-m', msg], cwd=hg_repo)
-            new_hash = subprocess.check_output(
-                ['hg', 'log', '-l', '1', '--template', '{node}\n'], cwd=hg_repo
-            ).rstrip('\n')
+            new_hash = (
+                subprocess.check_output(
+                    ['hg', 'log', '-l', '1', '--template', '{node}\n'], cwd=hg_repo
+                )
+                .decode()
+                .rstrip('\n')
+            )
             amended_commits[head['hash']] = new_hash
     return amended_commits
 
