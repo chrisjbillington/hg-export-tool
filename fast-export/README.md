@@ -30,8 +30,9 @@ System Requirements
 -------------------
 
 This project depends on Python 2.7 or 3.5+, and the Mercurial >= 4.6
-package. If Python is not installed, install it before proceeding. The
-Mercurial package can be installed with `pip install mercurial`.
+package (>= 5.2, if Python 3.5+). If Python is not installed, install
+it before proceeding. TheMercurial package can be installed with
+`pip install mercurial`.
 
 On windows the bash that comes with "Git for Windows" is known to work
 well.
@@ -92,6 +93,9 @@ The example authors.map below will translate `User
 "User <garbage\t<user@example.com>"="User <user@example.com>"
 -- End of authors.map --
 ```
+
+If you have many Mercurial repositories, Chris J Billington's
+[hg-export-tool] allows you to batch convert them.
 
 Tag and Branch Naming
 ---------------------
@@ -194,7 +198,9 @@ Notes/Limitations
 
 hg-fast-export supports multiple branches but only named branches with
 exactly one head each. Otherwise commits to the tip of these heads
-within the branch will get flattened into merge commits.
+within the branch will get flattened into merge commits. Chris J
+Billington's [hg-export-tool] can help you to handle branches with
+duplicate heads.
 
 hg-fast-export will ignore any files or directories tracked by mercurial
 called `.git`, and will print a warning if it encounters one. Git cannot
@@ -274,3 +280,5 @@ Frequent Problems
   By design fast export does not touch your working directory, so to
   git it looks like you have deleted all files, when in fact they have
   never been checked out. Just do a checkout of the branch you want.
+
+[hg-export-tool] https://github.com/chrisjbillington/hg-export-tool

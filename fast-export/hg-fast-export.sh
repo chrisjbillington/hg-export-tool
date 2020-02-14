@@ -41,7 +41,7 @@ if [ -z "${PYTHON}" ]; then
 fi
 if [ -z "${PYTHON}" ]; then
     echo "Could not find a python interpreter with the mercurial module available. " \
-        "Please use the 'PYTHON'environment variable to specify the interpreter to use."
+        "Please use the 'PYTHON' environment variable to specify the interpreter to use."
     exit 1
 fi
 
