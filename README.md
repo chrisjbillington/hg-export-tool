@@ -75,9 +75,10 @@ example:
 }
 ```
 
-The git repositories must not already exist. If the filepaths in this file are relative
-paths, they will be interpreted relative to the directory containing the repo mapping
-file.
+If the git already exist for a given mapping, that conversion will be skipped. Delete
+the git repository and run the tool again to redo the conversion.If the filepaths in
+this file are relative paths, they will be interpreted relative to the directory
+containing the repo mapping file.
 
 All remaining arguments will be passed to invocations of `hg-fast-export.sh`.
 
@@ -136,6 +137,14 @@ Notes are not included in clones by default, to fetch them into a new clone do:
 ```bash
 $ git fetch origin refs/notes/*:refs/notes/*
 ```
+
+This repository also includes a script `list-branches-differing-by-case.py`. Run it as:
+`python list-branches-differing-by-case.py REPO_MAPPING_FILE` to see a list of branch
+names of each repository that differ only by case. To rename these branches, you may use
+a branch mapping file containing lines in the format `"OrigBranchName"="newbranchname"`,
+and pass it to `hg-fast-export` with the argument: `-B branches.map`. If you need to do
+different branch mappings for different repos, you'll have to split your repo
+mapping file up and run `export.py` multiple times, sorry.
 
 Windows
 =======

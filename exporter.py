@@ -22,14 +22,15 @@ def mkdir_p(path):
             raise
 
 def init_git_repo(git_repo):
-    if os.path.exists(git_repo):
-        # shutil.rmtree(git_repo)
-        msg = "repo {} already exists, please delete it and run this script again\n"
-        sys.stderr.write(msg.format(git_repo))
-        sys.exit(1)
-    mkdir_p(git_repo)
-    subprocess.check_call(['git', 'init', git_repo])
-    subprocess.check_call(['git', 'config', 'core.ignoreCase', 'false'], cwd=git_repo)
+    """Make a new git repo in a temporary directory, and return its path"""
+    random_hex = hexlify(os.urandom(16)).decode()
+    temp_repo = os.path.join(
+        gettempdir(), os.path.basename(git_repo) + '-' + random_hex
+    )
+    mkdir_p(temp_repo)
+    subprocess.check_call(['git', 'init', temp_repo])
+    subprocess.check_call(['git', 'config', 'core.ignoreCase', 'false'], cwd=temp_repo)
+    return temp_repo
 
 def copy_hg_repo(hg_repo):
     random_hex = hexlify(os.urandom(16)).decode()
@@ -139,13 +140,19 @@ def update_notes(git_repo, amended_commits):
         subprocess.check_call(cmd, cwd=git_repo)
 
 def process_repo(hg_repo, git_repo, fast_export_args, bash):
-    init_git_repo(git_repo)
+    if os.path.exists(git_repo):
+        msg = "git repo {} already exists, skipping.\n"
+        sys.stderr.write(msg.format(git_repo))
+        return
+    temp_git_repo = init_git_repo(git_repo)
     hg_repo_copy = copy_hg_repo(hg_repo)
     try:
         amended_commits = fix_branches(hg_repo_copy)
-        convert(hg_repo_copy, git_repo, fast_export_args, bash)
+        convert(hg_repo_copy, temp_git_repo, fast_export_args, bash)
+        shutil.copytree(temp_git_repo, git_repo)
     finally:
         shutil.rmtree(hg_repo_copy)
+        shutil.rmtree(temp_git_repo)
     if amended_commits and '--hg-hash' in fast_export_args:
         update_notes(git_repo, amended_commits)
 
