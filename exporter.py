@@ -149,12 +149,11 @@ def process_repo(hg_repo, git_repo, fast_export_args, bash):
     try:
         amended_commits = fix_branches(hg_repo_copy)
         convert(hg_repo_copy, temp_git_repo, fast_export_args, bash)
-        shutil.copytree(temp_git_repo, git_repo)
+        if amended_commits and '--hg-hash' in fast_export_args:
+            update_notes(temp_git_repo, amended_commits)
+        shutil.move(temp_git_repo, git_repo)
     finally:
         shutil.rmtree(hg_repo_copy)
-        shutil.rmtree(temp_git_repo)
-    if amended_commits and '--hg-hash' in fast_export_args:
-        update_notes(git_repo, amended_commits)
 
 def main():
     for i, arg in enumerate(sys.argv[:]):
