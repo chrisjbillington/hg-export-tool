@@ -41,7 +41,7 @@ def copy_hg_repo(hg_repo):
     return hg_repo_copy
 
 def get_heads(hg_repo):
-    """Return alist of topological heads, including of closed branches, each in the
+    """Return alist of heads, including of closed branches, each in the
     format:
 
     {
@@ -49,15 +49,21 @@ def get_heads(hg_repo):
         'branch': '<branchname>',
         'bookmark': '<bookmark name or None>',
         'timstamp': <utc_unix_timestamp>,
+        'topological': <whether the head is a topological head>,
     }
 
     """
 
     cmd = ['hg', 'heads', '--closed', '--topo', '--template', 'json']
-    results = []
     output = subprocess.check_output(cmd, cwd=hg_repo)
-    heads = json.loads(output)
-    for head in heads:
+    topo_heads = json.loads(output)
+
+    cmd = ['hg', 'heads', '--closed', '--template', 'json']
+    output = subprocess.check_output(cmd, cwd=hg_repo)
+    all_heads = json.loads(output)
+
+    results = []
+    for head in all_heads:
         results.append(
             {
                 'hash': head['node'],
@@ -65,6 +71,7 @@ def get_heads(hg_repo):
                 'timestamp': head['date'][0] + head['date'][1],  # add UTC offset
                 # If multiple bookmarks, ignore all but one:
                 'bookmark': head['bookmarks'][0] if head['bookmarks'] else None,
+                'topological': head in topo_heads
             }
         )
 
@@ -82,12 +89,21 @@ def fix_branches(hg_repo):
     # Sort by timestamp, newest first:
     for heads in heads_by_branch.values():
         heads.sort(reverse=True, key=lambda head: head['timestamp'])
-    # Iterate over additional heads of each branch, skipping over the most recently
-    # commited to:
     amended_commits = {}
     for branch, heads in heads_by_branch.items():
+        if len(heads) == 1 or all(not head['topological'] for head in heads):
+            # No topological heads in this branch, no renaming:
+            heads_to_rename = []
+        elif all(head['topological'] for head in heads):
+            # Only topological heads in this branch. Rename all but the most recently
+            # committed to:
+            heads_to_rename = heads[1:]
+        else:
+            # Topological and non-topological heads in this branch. Rename all
+            # topological heads:
+            heads_to_rename = [head for head in heads if head['topological']]
         counter = itertools.count(1)
-        for head in heads[1:]:
+        for head in heads_to_rename:
             if head['bookmark'] is not None:
                 new_branch_name = head['bookmark']
             else:
@@ -151,9 +167,37 @@ def process_repo(hg_repo, git_repo, fast_export_args, bash):
         convert(hg_repo_copy, temp_git_repo, fast_export_args, bash)
         if amended_commits and '--hg-hash' in fast_export_args:
             update_notes(temp_git_repo, amended_commits)
+        if '--hg-hash' in fast_export_args:
+            verify_conversion(hg_repo, temp_git_repo)
         shutil.move(temp_git_repo, git_repo)
     finally:
         shutil.rmtree(hg_repo_copy)
+
+
+def list_of_hg_commits(hg_repo):
+    cmd = ['hg', 'log', '--template', '{node}\n']
+    return subprocess.check_output(cmd, cwd=hg_repo).decode('utf8').splitlines()
+
+
+def get_commit_mapping(git_repo):
+    """return a dict {git_hash: hg_hash} mapping git commit hashes to the corresponding
+    mercurial hashes for a repo that has been converted using hg-fast-export with the
+    --hg-hash option"""
+    cmd = ['git', 'log', '--branches', '--show-notes=hg', '--format=format:%H %N']
+    lines = subprocess.check_output(cmd, cwd=git_repo).decode('utf8').splitlines()
+    return dict([line.strip().split() for line in lines if line.strip()])
+
+def verify_conversion(hg_repo, git_repo):
+    git_to_hg_hashes = get_commit_mapping(git_repo)
+    hg_hashes = set(list_of_hg_commits(hg_repo))
+    hashes_that_made_it = set(git_to_hg_hashes.values())
+    try:
+        assert hg_hashes == hashes_that_made_it
+    except AssertionError:
+        for hg_hash in hg_hashes - hashes_that_made_it:
+            sys.stderr.write('hg hash %s has no corresponding git commit\n' % hg_hash)
+        raise
+
 
 def main():
     for i, arg in enumerate(sys.argv[:]):
