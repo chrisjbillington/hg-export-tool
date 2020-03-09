@@ -8,6 +8,7 @@ from tempfile import gettempdir
 import shutil
 from collections import defaultdict
 import itertools
+import stat
 
 here = os.path.dirname(os.path.abspath(__file__))
 FAST_EXPORT_DIR = os.path.join(here, 'fast-export')
@@ -20,6 +21,13 @@ def mkdir_p(path):
             pass
         else:
             raise
+
+def remove_readonly(func, path, _):
+    """Clear the readonly bit and reattempt the removal. Necessary to delete read-only
+    files in Windows, and the .git directory appears to contain such files."""
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
 
 def init_git_repo(git_repo):
     """Make a new git repo in a temporary directory, and return its path"""
@@ -169,9 +177,10 @@ def process_repo(hg_repo, git_repo, fast_export_args, bash):
             update_notes(temp_git_repo, amended_commits)
         if '--hg-hash' in fast_export_args:
             verify_conversion(hg_repo, temp_git_repo)
-        shutil.move(temp_git_repo, git_repo)
+        shutil.copytree(temp_git_repo, git_repo)
     finally:
-        shutil.rmtree(hg_repo_copy)
+        shutil.rmtree(temp_git_repo, onerror=remove_readonly)
+        shutil.rmtree(hg_repo_copy, onerror=remove_readonly)
 
 
 def list_of_hg_commits(hg_repo):
