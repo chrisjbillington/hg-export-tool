@@ -141,6 +141,7 @@ def convert(hg_repo_copy, git_repo, fast_export_args, bash):
     env = os.environ.copy()
     env['PYTHON'] = sys.executable
     env['PATH'] = FAST_EXPORT_DIR + os.pathsep + env.get('PATH', '')
+    env['HGENCODING'] = 'UTF-8'
     subprocess.check_call(
         [bash, 'hg-fast-export.sh', '-r', hg_repo_copy] + fast_export_args,
         env=env,
