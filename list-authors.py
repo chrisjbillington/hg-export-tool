@@ -30,7 +30,7 @@ if os.path.exists(authors_map):
     )
     sys.exit(1)
 
-with open(authors_map, 'w') as f:
+with open(authors_map, 'wb') as f:
     for author in authors:
         if '@' in author and ' <' in author:
             # Already a valid git author:
@@ -41,4 +41,4 @@ with open(authors_map, 'w') as f:
         else:
             # Need to append an email address, use devnull@localhost:
             git_author = author + ' <devnull@localhost>'
-        f.write('"{}"="{}"\n'.format(author, git_author))
+        f.write(u'"{}"="{}"\n'.format(author, git_author).encode('utf-8'))
