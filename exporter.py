@@ -64,11 +64,11 @@ def get_heads(hg_repo):
 
     cmd = ['hg', 'heads', '--closed', '--topo', '--template', 'json']
     output = subprocess.check_output(cmd, cwd=hg_repo)
-    topo_heads = json.loads(output)
+    topo_heads = json.loads(output.decode('utf8'))
 
     cmd = ['hg', 'heads', '--closed', '--template', 'json']
     output = subprocess.check_output(cmd, cwd=hg_repo)
-    all_heads = json.loads(output)
+    all_heads = json.loads(output.decode('utf8'))
 
     results = []
     for head in all_heads:
